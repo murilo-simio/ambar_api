@@ -10,7 +10,7 @@ PATH_TO_DATABASE = 'home/murilo/dev/'
 # Configura o db
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+ PATH_TO_DATABASE + 'ambar_api/database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+ PATH_TO_DATABASE + 'ambar_api/src/discos.db'
 db = SQLAlchemy(app)
 
 # Tabela Discos
@@ -25,7 +25,7 @@ class Discos(db.Model):
     def to_json(self):
         return {"id": self.id,
                 "titulo": self.titulo,
-                "genereo": self.genero,
+                "genero": self.genero,
                 "artista": self.artista,
                 "valor": self.valor}
 
@@ -81,7 +81,7 @@ def get_by_attribute(attribute: str, value):
     except:
         return send_response(status=400,
                              body={},
-                             msg=f"Erro ao buscar digitos de {attribute} = {value}!")
+                             msg=f"Erro ao buscar discos de {attribute} = {value}!")
 
 # Cria um disco novo
 @app.route("/disco", methods=["POST"])
@@ -110,16 +110,14 @@ def update(id: int):
 
     try:
         if "titulo" in body:
-            disc_obj.titulo = body["titulo"]
+            setattr(disc_obj, "titulo", body["titulo"])
         if "genero" in body:
-            disc_obj.genero = body["genero"]
+            setattr(disc_obj, "genero", body["genero"])
         if "artista" in body:
-            disc_obj.artista = body["artista"]
+            setattr(disc_obj, "artista", body["artista"])
         if "valor" in body:
-            disc_obj.valor = body["valor"]
-
-        db.session.add(disc_obj)
-        db.commit()
+            setattr(disc_obj, "valor", body["valor"])
+        db.session.commit()
         return send_response(status=200, 
                              body=disc_obj.to_json(),
                              msg=f"Disco {id} Atualizado com Sucesso!")
