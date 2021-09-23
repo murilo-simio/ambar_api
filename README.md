@@ -1,6 +1,6 @@
 # AMBAR API
 
-Uma implementação simples de uma API usando Flask, SQLite para uma loja de discos de vinil
+Uma implementação simples de uma API usando Flask, SQLite para uma loja de discos de vinil. Projeto feito para o processo seletivo da Ambar.
 
 ### Para rodar o servidor:
 ```
