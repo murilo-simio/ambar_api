@@ -1,4 +1,5 @@
 import json
+from logging import exception
 
 from flask import Flask, Response, request
 from flask_sqlalchemy import SQLAlchemy
@@ -32,9 +33,11 @@ class Discos(db.Model):
 @app.route("/discos", methods=["GET"])
 def get_all():
     discs_obj = Discos.query.all()
+    elems = Discos.query.count()
     discs_json = [disc.to_json() for disc in discs_obj]
-    msg = 'Retrieved all discs!'
-    return send_response(200, discs_json, msg)
+    return send_response(status=200,
+                         body=discs_json,
+                         msg=f"Todos os {elems} discos foram retornados com sucesso")
 
 # Retorna apenas um disco
 @app.route("/disco/<id>", methods=["GET"])
@@ -42,11 +45,43 @@ def get_one(id: int):
     try:
         disc_obj = Discos.query.filter_by(id=id).first()
         disc_json = disc_obj.to_json()
-        msg = "Disco retornado com sucesso"
-        return send_response(200, disc_json, msg)
+        return send_response(status=200,
+                             body=disc_json,
+                             msg=f"Disco {id} retornado com sucesso")
     except:
-        msg = f"Nao foi possivel retornar o disco de id: {id}!"
-        return send_response(400, {}, msg)
+        return send_response(status=400,
+                             body={},
+                             msg=f"Nao foi possivel retornar o disco de id: {id}!")
+
+# Retorna os discos de acordo com os atributos
+@app.route("/<attribute>/<value>", methods=["GET"])
+def get_by_attribute(attribute: str, value):
+    try:
+        if attribute == "artista":
+            artista_obj = Discos.query.filter_by(artista=value)
+            if Discos.query.filter_by(artista=value).count() < 1:
+                raise exception
+        if attribute == "titulo":
+            artista_obj = Discos.query.filter_by(titulo=value)
+            if Discos.query.filter_by(titulo=value).count() < 1:
+                raise exception
+        if attribute == "genero":
+            artista_obj = Discos.query.filter_by(genero=value)
+            if Discos.query.filter_by(genero=value).count() < 1:
+                raise exception
+        if attribute == "valor":
+            artista_obj = Discos.query.filter_by(valor=value)
+            if Discos.query.filter_by(valor=value).count() < 1:
+                raise exception
+        disc_artista = [disc.to_json() for disc in artista_obj]
+        return send_response(status=200,
+                             body=disc_artista,
+                             msg=f"Os discos com {attribute}: {value} foram "
+                                  "retornados com sucesso!")
+    except:
+        return send_response(status=400,
+                             body={},
+                             msg=f"Erro ao buscar digitos de {attribute} = {value}!")
 
 # Cria um disco novo
 @app.route("/disco", methods=["POST"])
@@ -59,11 +94,13 @@ def create():
                       valor=body["valor"])
         db.session.add(disc)
         db.session.commit()
-        msg = "Disco Adicionado com sucesso!"
-        return send_response(201, disc.to_json(), msg)
+        return send_response(status=201,
+                             body=disc.to_json(),
+                             msg="Disco Adicionado com sucesso!")
     except:
-        msg = "Nao foi possivel criar novo disco!"
-        return send_response(400, body, msg)
+        return send_response(status=400,
+                             body=body,
+                             msg="Nao foi possivel criar novo disco!")
 
 # Atualiza um disco
 @app.route("/disco/<id>", methods=["PUT"])
