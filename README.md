@@ -4,6 +4,7 @@ Uma implementação simples de uma API usando Flask, SQLite para uma loja de dis
 
 ### Para rodar o servidor:
 ```
+python3 -m pip install -r requirements.txt
 python3 src/app.py
 ```
 
