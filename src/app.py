@@ -111,12 +111,14 @@ def update(id: int):
     try:
         if "titulo" in body:
             setattr(disc_obj, "titulo", body["titulo"])
-        if "genero" in body:
+        elif "genero" in body:
             setattr(disc_obj, "genero", body["genero"])
-        if "artista" in body:
+        elif "artista" in body:
             setattr(disc_obj, "artista", body["artista"])
-        if "valor" in body:
+        elif "valor" in body:
             setattr(disc_obj, "valor", body["valor"])
+        else:
+            raise exception
         db.session.commit()
         return send_response(status=200, 
                              body=disc_obj.to_json(),
@@ -139,7 +141,7 @@ def delete(id):
                              msg=f"Disco {id} deletado com sucesso!")
     except:
         return send_response(status=400,
-                             body=disc_obj.to_json(),
+                             body={},
                              msg=f"Nao foi possivel deletar o disco {id}!")
 
 
