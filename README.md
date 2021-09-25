@@ -1,9 +1,16 @@
 # AMBAR API
 
-Uma implementação simples de uma API usando Flask, SQLite para uma loja de discos de vinil
+Uma implementação simples de uma API usando Flask, SQLite para uma loja de discos de vinil. Projeto feito para o processo seletivo da Ambar.
+
+### Determinar o caminho da pasta
+Altere a variável global com o caminho até a pasta ambar_api
+```
+PATH_TO_DATABASE = 'C:/home/murilo/dev/'
+```
 
 ### Para rodar o servidor:
 ```
+python3 -m pip install -r requirements.txt
 python3 src/app.py
 ```
 
