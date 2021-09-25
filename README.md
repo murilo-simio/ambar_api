@@ -38,7 +38,7 @@ curl --location --request GET 'http://127.0.0.1:5000/discos'
 curl --location --request GET 'http://127.0.0.1:5000/disco/7'
 ```
 
-### Retornar um disco por atributo
+### Retornar discos por atributo
 ```
 curl --location --request GET 'http://127.0.0.1:5000/disco' \
 --header 'Content-Type: application/json' \
