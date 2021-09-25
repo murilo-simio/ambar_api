@@ -1,16 +1,17 @@
 import json
+import os
 from logging import exception
 
 from flask import Flask, Response, request
 from flask_sqlalchemy import SQLAlchemy
 
-# Coloque aqui o caminho para a pasta ambar_api
-PATH_TO_DATABASE = 'home/murilo/dev/'
+# Caminho para a pasta atual
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 # Configura o db
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+ PATH_TO_DATABASE + 'ambar_api/src/discos.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+ os.path.join(BASEDIR,'discos.db')
 db = SQLAlchemy(app)
 
 # Tabela Discos
