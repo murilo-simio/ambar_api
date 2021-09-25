@@ -6,7 +6,6 @@ class ApiTest(unittest.TestCase):
     API_URL = "http://127.0.0.1:5000"
     DISCOS_URL = "{}/discos".format(API_URL)
     DISCO_URL = "{}/disco".format(API_URL)
-    GENERO_URL = "{}/genero".format(API_URL)
     DISCO_OBJ = {
         "titulo": "Disco Teste",
         "genero": "Folk",
@@ -32,7 +31,6 @@ class ApiTest(unittest.TestCase):
 
     def test_04_get_new(self):
         r = requests.get("{}/{}".format(ApiTest.DISCO_URL, 7))
-        r_data = json.loads(r.content)
         expected = {
             "disco": {
                 "id": 7,
@@ -47,8 +45,7 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(json.loads(r.content), expected)
 
     def test_05_get_by_attribute(self):
-        r = requests.get("{}/{}".format(ApiTest.GENERO_URL, "Pop"))
-        r_data = json.loads(r.content)
+        r = requests.get(ApiTest.DISCO_URL, json={"genero":"Pop"})
         expected = {'disco':
                         [{'id': 5,
                           'titulo': 'Thriller',
@@ -61,7 +58,7 @@ class ApiTest(unittest.TestCase):
                           'genero': 'Pop',
                           'artista': 'Michael Jackson',
                           'valor': 314.15}],
-                    'mensagem': 'Os discos com genero: Pop foram retornados com sucesso!'}
+                    'mensagem': 'Disco(s) com filtro {\'genero\': \'Pop\'} retornados com sucesso!'}
         self.assertEqual(r.status_code, 200)
         self.assertEqual(json.loads(r.content), expected)
 
@@ -97,12 +94,10 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(json.loads(r.content), expected)
 
     def test_09_get_by_attribute_fail(self):
-        atr_url = "{}/teste".format(ApiTest.API_URL)
-        r = requests.get("{}/{}".format(atr_url, "teste"))
-        r_data = json.loads(r.content)
+        r = requests.get(ApiTest.DISCO_URL, json={"teste":"Pop"})
         expected = {
             "disco": {},
-            "mensagem": "Erro ao buscar discos de teste = teste!"
+            "mensagem": "Nao foi possivel retornar discos com o filtro {\'teste\': \'Pop\'}!"
         }
         self.assertEqual(r.status_code, 400)
         self.assertEqual(json.loads(r.content), expected)
