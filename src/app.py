@@ -1,16 +1,17 @@
 import json
+import os
 from logging import exception
 
 from flask import Flask, Response, request
 from flask_sqlalchemy import SQLAlchemy
 
-# Coloque aqui o caminho para a pasta ambar_api
-PATH_TO_DATABASE = 'home/murilo/dev/'
+# Caminho para a pasta atual
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 # Configura o db
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+ PATH_TO_DATABASE + 'ambar_api/src/discos.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+ os.path.join(BASEDIR,'discos.db')
 db = SQLAlchemy(app)
 
 # Tabela Discos
@@ -33,11 +34,10 @@ class Discos(db.Model):
 @app.route("/discos", methods=["GET"])
 def get_all():
     discs_obj = Discos.query.all()
-    elems = Discos.query.count()
     discs_json = [disc.to_json() for disc in discs_obj]
     return send_response(status=200,
                          body=discs_json,
-                         msg=f"Todos os {elems} discos foram retornados com sucesso")
+                         msg=f"Todos os {len(discs_json)} discos foram retornados com sucesso")
 
 # Retorna apenas um disco
 @app.route("/disco/<id>", methods=["GET"])
@@ -53,35 +53,22 @@ def get_one(id: int):
                              body={},
                              msg=f"Nao foi possivel retornar o disco de id: {id}!")
 
-# Retorna os discos de acordo com os atributos
-@app.route("/<attribute>/<value>", methods=["GET"])
-def get_by_attribute(attribute: str, value):
+# Retorna discos por atributo
+@app.route("/disco", methods=["GET"])
+def get_by_attribute():
+    filtro = request.get_json()
     try:
-        if attribute == "artista":
-            artista_obj = Discos.query.filter_by(artista=value)
-            if Discos.query.filter_by(artista=value).count() < 1:
+        discs_obj = Discos.query.filter_by(**filtro)
+        disc_json = [disc.to_json() for disc in discs_obj]
+        if len(disc_json) < 1:
                 raise exception
-        if attribute == "titulo":
-            artista_obj = Discos.query.filter_by(titulo=value)
-            if Discos.query.filter_by(titulo=value).count() < 1:
-                raise exception
-        if attribute == "genero":
-            artista_obj = Discos.query.filter_by(genero=value)
-            if Discos.query.filter_by(genero=value).count() < 1:
-                raise exception
-        if attribute == "valor":
-            artista_obj = Discos.query.filter_by(valor=value)
-            if Discos.query.filter_by(valor=value).count() < 1:
-                raise exception
-        disc_artista = [disc.to_json() for disc in artista_obj]
         return send_response(status=200,
-                             body=disc_artista,
-                             msg=f"Os discos com {attribute}: {value} foram "
-                                  "retornados com sucesso!")
+                             body=disc_json,
+                             msg=f"Disco(s) com filtro {filtro} retornados com sucesso!")
     except:
         return send_response(status=400,
                              body={},
-                             msg=f"Erro ao buscar discos de {attribute} = {value}!")
+                             msg=f"Nao foi possivel retornar discos com o filtro {filtro}!")
 
 # Cria um disco novo
 @app.route("/disco", methods=["POST"])
@@ -107,18 +94,12 @@ def create():
 def update(id: int):
     disc_obj = Discos.query.filter_by(id=id).first()
     body = request.get_json()
-
+    
     try:
-        if "titulo" in body:
-            setattr(disc_obj, "titulo", body["titulo"])
-        elif "genero" in body:
-            setattr(disc_obj, "genero", body["genero"])
-        elif "artista" in body:
-            setattr(disc_obj, "artista", body["artista"])
-        elif "valor" in body:
-            setattr(disc_obj, "valor", body["valor"])
-        else:
-            raise exception
+        for key, value in body.items():
+            if key not in disc_obj.to_json():
+                raise exception
+            setattr(disc_obj, key, value)
         db.session.commit()
         return send_response(status=200, 
                              body=disc_obj.to_json(),

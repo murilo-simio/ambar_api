@@ -2,12 +2,6 @@
 
 Uma implementação simples de uma API usando Flask, SQLite para uma loja de discos de vinil. Projeto feito para o processo seletivo da Ambar.
 
-### Determinar o caminho da pasta
-Altere a variável global com o caminho até a pasta ambar_api
-```
-PATH_TO_DATABASE = 'C:/home/murilo/dev/'
-```
-
 ### Para rodar o servidor:
 ```
 python3 -m pip install -r requirements.txt
@@ -44,9 +38,13 @@ curl --location --request GET 'http://127.0.0.1:5000/discos'
 curl --location --request GET 'http://127.0.0.1:5000/disco/7'
 ```
 
-### Retornar um disco por atributo
+### Retornar discos por atributo
 ```
-curl --location --request GET 'http://127.0.0.1:5000/artista/Black Sabbath'
+curl --location --request GET 'http://127.0.0.1:5000/disco' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "artista": "Michael Jackson"
+}'
 ```
 
 ### Atualiza um disco
